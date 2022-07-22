@@ -22,6 +22,7 @@ async function linkedinScrapper(searchValue = { region: "", title: "" }) {
   } catch (error) {
     console.log(error.message);
     console.log(error.stack);
+    console.log("There is also a good chance you've hit an Authwall")
   }
 }
 

@@ -105,3 +105,6 @@ dist
 
 # Puppeteer user directory
 data/
+
+searchresults.html
+profileresults.html

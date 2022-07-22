@@ -102,7 +102,7 @@ function waitUntil(t) {
 async function getLinkedinProfileData() {
   try {
     for (let i = 0; i < linkdinProfileURLs.length; i++) {
-      // await waitUntil(2000);
+      await waitUntil(3000);
       const link = linkdinProfileURLs[i];
       await browserPage.goto(link, { waitUntil: "domcontentloaded" });
       await browserPage.waitForSelector("#main-content");
@@ -154,9 +154,9 @@ async function getLinkedinProfileData() {
 
       let profile = {
         profileImage: extractProfileImg,
-        name: String(extractProfileName).trim(),
-        title: String(extractProfileHeadline).trim(),
-        about: String(extractAbout).trim(),
+        name: String(extractProfileName).replace(/(\r\n|\n|\r)/gm, "").trim(),
+        title: String(extractProfileHeadline).replace(/(\r\n|\n|\r)/gm, "").trim(),
+        about: String(extractAbout).replace(/(\r\n|\n|\r)/gm, "").trim(),
       };
       profileData.push(profile);
     }

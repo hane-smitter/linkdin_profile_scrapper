@@ -1,21 +1,19 @@
 <div id="top"></div>
 
-<!-- PROJECT LOGO -->
-<!-- <br />
+<br />
 <div align="center">
-  <a href="https://github.com/hane-smitter/mine-phone-number">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a> -->
+    <img src="https://accountgram-production.sfo2.cdn.digitaloceanspaces.com/nubelaco_ghost/2020/09/TLC_Tutorial--How-to-build-your-own-Linkedin-Profile-Scraper--2020-_light-bg.png" alt="Logo" width="400">
+</div>
 
 <h1 align="center">
   <strong>How to Create Linkedin Profile scrapper as of 2022</strong>
 </h1>
 
 <p align="center">
-Your LinkedIn profile is a professional landing page for you to manage your own, personal brand. Top companies are looking to hire top talent. A Linkedin profile that stands out, is many steps closer to the kind of top talent that companies want. Finding top talent will need companies to swam through Linkedin profiles of candidates.
+Your LinkedIn profile is a professional landing page for you to manage your own, personal brand. Top companies are looking to hire top talent. A Linkedin profile that is well constructed, stands shoulder high in the pecking order. Companies are looking for profiles that are rich in information and portray workmanship. Finding top talent will need companies to swam through the Linkedin profiles of candidates.
 </p>
 <p align="center">
-With that said, a tool that will seek to automate the mundane task of collecting profile information from LinkedIn profiles, will help make professional information readily available at one disposal, for companies to find their right candidate.
+With that said, a tool that will seek to automate the mundane task of collecting profile information from LinkedIn profiles, will help make professional information readily available at one disposal, for companies to take their stance in finding their right candidate.
 In this tutorial, we shall be looking on how we can create a LinkedIn profile scrapper and also outline the challenges involved.
 </p>
 
@@ -60,10 +58,9 @@ In this tutorial, we shall be looking on how we can create a LinkedIn profile sc
         </li>
       </ul>
     </li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
+    <li><a href="#creating-entry-point">Creating Entry Point to Our Project</a></li>
+    <li><a href="#encountered-issues">Encountered Issues</a></li>
     <li><a href="#contact">Contact</a></li>
-    <!-- <li><a href="#acknowledgments">Acknowledgments</a></li> -->
   </ol>
 </details>
 
@@ -136,6 +133,9 @@ to install the packages.
 
 <h3 id="launch-browser">Launch Browser</h4>
 
+Let's kickstart our development.  
+A the project root, let's create `browser.js` file and add the below code in it.
+
 ```javascript
 const puppeteer = require("puppeteer");
 
@@ -188,7 +188,7 @@ module.exports = {
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <h3 id="web-scraping">Web Scraping</h3>
-At this point we create scrapping Logic in the steps:
+At this point we shall create scrapping Logic in the steps:
 
 1. Perform google search and scrap the linkedIn public URLs from the search results.
 
@@ -248,9 +248,11 @@ const searchQuery = encodeURIComponent(
 const searchUrl = baseUrl + searchEndPoint + searchQuery;
 ```
 
-Inside our `linkedinScrapper` function, we construct a google search url with a search query of `site:linkedin.com/in/ AND ${region} AND ${title}`, with the `${region}` and `${title}` obtained from function arguments. We are utilizing [Google dorks](https://www.exploit-db.com/google-hacking-database) to search publicly available information and to tailor our search results. This Search Query will search for linkedin profiles that contain information about the `${region}` and `${title}`. We pass the search URL to the function that will hold our logic `scrapper(browserReady, searchUrl);`;
+Inside our `linkedinScrapper` function, we construct a google search url with a search query of `site:linkedin.com/in/ AND ${region} AND ${title}`, with the `${region}` and `${title}` obtained from function parameters. We are utilizing [Google dorks](https://www.exploit-db.com/google-hacking-database) to search publicly available information and to tailor our search results. This Search Query will search for linkedin profiles that contain information about the `${region}` and `${title}`. We pass the search URL to the function that will hold our logic `scrapper(browserReady, searchUrl);`;
 
 Then we call `const browserReady = await startBrowser();` to launch browser and pass the instance to the scrapper function also `scrapper(browserReady, searchUrl);`.
+
+#### Next Step
 
 Next we navigate to `scrapper.js` file at the path `./scrapper/scrapper.js`(_relative to the project root_).  
 We start off by initializing:
@@ -275,10 +277,12 @@ async function init(browser, searchUrl, resultsLength = 10) {
   browserPage = await browser.newPage();
   await getLinkedinProfileUrls(searchUrl);
   await getLinkedinProfileData();
+  return { nextPageUrl, linkdinProfileURLs, profileData };
 }
 ```
 
 We have created an `init()` function that will create a new browser page `browserPage = await browser.newPage();` before simultaneously executing `await getLinkedinProfileUrls(searchUrl);`(_google search for linkedin profiles_) and `await getLinkedinProfileData();`(_scrap data from linkedIn profiles with URLs gotten from google search_).  
+We then return an **Object** that will carry the results of our scrapping `return { nextPageUrl, linkdinProfileURLs, profileData }`  
 Also we have set global variables that will have a global scope in the module and thus make them accessible from each function.
 `isLinkedinPublicUrl` is our global variable containing regular expression that will be used to match LinkedIn **public** profile URLs generally in the form of <code>https://<small><em>\[contry_code\]</em></small>.linkedin.com/in/<small><em>\[user-profile-name\]</em></small></code>
 
@@ -301,7 +305,7 @@ async function getLinkedinProfileUrls(searchUrl) {
     // Wait for the selector to appear within DOM
     await browserPage.waitForSelector("#center_col");
     const html = await browserPage.evaluate(() => {
-      // container containing search results and naviagation presentation
+      // container containing search results and navigation presentation
       const searchResultsMain = document.getElementById("center_col").innerHTML;
       return searchResultsMain;
     });
@@ -313,7 +317,7 @@ async function getLinkedinProfileUrls(searchUrl) {
 }
 ```
 
-We have used the global variable `browserPage` that is assigned when we call the `init` function. We thereon do our google searc by running `await browserPage.goto(searchUrl, { waitUntil: "domcontentloaded" });`, and wait for until the DOM is completely parsed before we can continue.  
+We have used the global variable `browserPage` that is assigned when we call the `init` function. We thereafter do our google search by running `await browserPage.goto(searchUrl, { waitUntil: "domcontentloaded" });`, and wait until the DOM is completely parsed before we can continue.  
 Thereafter we make sure that the DOM element we want to extract is in the DOM, if not then wait until timeout before we can throw an error `await browserPage.waitForSelector("#center_col");`. _Just keep in mind that SPAs(Single Page Applications) will build DOM using javascript_.
 
 We know our search results will be in the `#center_col` element because if you open your browser and type in the search `site:linkedin.com/in/ AND "malawi" AND "software engineer"`, open your browser dev tools, this is what you should observe.
@@ -407,7 +411,7 @@ We traverse the loaded html string to:
 
 #### Next Step
 
-In the next step, we need to extract the link of our next page results
+In the next step, we need to extract the link that has URL to take us to the next page of our results
 
 ```javascript
 async function getLinkedinProfileUrls(searchUrl) {
@@ -417,7 +421,8 @@ async function getLinkedinProfileUrls(searchUrl) {
      */
     //  continuation...
 
-    // We pick the URL of the next browserPage, since active browserPage is `td` that has a class attribute on it
+    // We pick the URL of the next browserPage, since active browserPage is
+    // `td` that has a class attribute on it
     // and without an aria-level attribute and is not a first-child
     // The next browserPage is the sibling next to this `td` identified
     const extractnxtPgLink = $(
@@ -551,12 +556,22 @@ async function getLinkedinProfileData() {
         .children()[0];
       const extractAbout = $(extractAboutHtml).text();
 
+      // Attach the extracted profile information to an object,
+      // removing line breaks and trailing whitespaces
       let profile = {
         profileImage: extractProfileImg,
-        name: String(extractProfileName).trim(),
-        title: String(extractProfileHeadline).trim(),
-        about: String(extractAbout).trim(),
+        name: String(extractProfileName)
+          .replace(/(\r\n|\n|\r)/gm, "")
+          .trim(),
+        title: String(extractProfileHeadline)
+          .replace(/(\r\n|\n|\r)/gm, "")
+          .trim(),
+        about: String(extractAbout)
+          .replace(/(\r\n|\n|\r)/gm, "")
+          .trim(),
       };
+
+      // Push our new profile to array store
       profileData.push(profile);
     }
   } catch (error) {
@@ -568,6 +583,70 @@ async function getLinkedinProfileData() {
 We have looped through our `linkdinProfileURLs` array, browsing to every url in the array and obtaining useful information we need from HTML page and converting it to a consumable format (_javascript object_). The obtained information is then incrementally stored in our `profileData` array.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+<h2 id="creating-entry-point">Creating an Entry Point to our project</h2>
+
+We have written down the logic that we will need to scrape for data. What have not done is to create an entry point of our project where all the functionality is pulled into one central point.  
+In our root project folder, we create an `index.js` file that will have the following code:
+
+```javascript
+const linkedinScrapper = require("./scrapper/index.js");
+
+const region = "canada";
+const title = "golang developer";
+
+linkedinScrapper({ region, title });
+```
+
+We have simply imported our scrapper logic module and then called it providing object argument that will contain the `region` and `title` we would like to scrap for.  
+This is great. We can now run our project by typing in the commandline `node index.js`, and see how our project runs.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<h2 id="encountered-issues">Encountered Issues</h2>
+
+We have seen linked does not want you to scrap profile information of it's users. So it is always working on fine-tuning algorithms to try and detect automated bot activity running on its websites.  
+When trying to access LinkedIn profiles anonymously(withou logging in), you will come across a **notorious authwall** requiring you to first log in.
+
+Some of the reasons you may get blocked include:
+
+- If you visit a public profile from a non-residential IP address, such as from a data center IP address, you will get the Authwall.
+- If you visit a public profile without any cookies in your browser session (aka incognito mode), you will get the Authwall.
+- If you are visiting a public profile from a non-major browser, you will get the Authwall.
+- If you are visiting a public profile multiple times, you will get the Authwall.
+
+So you can see the crossroads. We want to access the profile information that is available publicly, but LinkedIn is acting mean. But we want this data;  
+So I found a temporary way to circumvent this authwall is to browse the linkedIn URLs at interleaved intervals.  
+_Please not that this method not always works_
+
+Therefore in our function `getLinkedinProfileData` that scraps to get linked profile information, we shall modify it a bit to allow for some idle period before trying to browse the next url information like shown below:
+
+```javascript
+function breathingSpace(t) {
+  return new Promise((r) => {
+    setTimeout(r, t);
+  });
+}
+
+async function getLinkedinProfileData() {
+  try {
+    for (let i = 0; i < linkdinProfileURLs.length; i++) {
+      // Wait for 2 secondes before performing logic
+      // to scrap the next Linkedin Profile information
+      await breathingSpace(2000);
+      const link = linkdinProfileURLs[i];
+      await browserPage.goto(link, { waitUntil: "domcontentloaded" });
+      /**
+       * --- REST OF CODE HERE ---
+       */
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+```
+
+We create a new function `breathingSpace` that returns a promise and just holds the process for `n` seconds before proceeding. We call that function in every iteration of getting the LinkedIn information and simulate _a wait effect_ or call it _pause_ as to your liking.
 
 <!-- CONTACT -->
 
